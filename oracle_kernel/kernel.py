@@ -3,7 +3,7 @@ import sqlalchemy as sa
 from ipykernel.kernelbase import Kernel
 
 
-__version__ = '0.3.0'
+__version__ = '0.1.0'
 
 class OracleKernel(Kernel):
     implementation = 'oracle_kernel'
@@ -53,28 +53,19 @@ class OracleKernel(Kernel):
                             self.output("Connection failed, The Oracle address cannot have two '@'.")
                         else:
                             self.engine = sa.create_engine(v, max_identifier_length=128)
-                    elif l.startswith('create database '):
-                        pd.io.sql.execute(l, con=self.engine)
-                    elif l.startswith('drop database '):
-                        pd.io.sql.execute(l, con=self.engine)
-                    elif l.startswith('create table '):
-                        pd.io.sql.execute(l, con=self.engine)
-                    elif l.startswith('drop table '):
-                        pd.io.sql.execute(l, con=self.engine)
-                    elif l.startswith('delete '):
-                        pd.io.sql.execute(l, con=self.engine)
-                    elif l.startswith('alter table '):
-                        pd.io.sql.execute(l, con=self.engine)
-                    elif l.startswith('insert into '):
-                        pd.io.sql.execute(l, con=self.engine)
+                    elif l.startswith('select '):
+                        if ' rownum ' not in l:
+                            if ' where ' in l:
+                                output = pd.read_sql(l+'  and rownum <= 1000', self.engine).to_html()
+                            else:
+                                output = pd.read_sql(l+'  where rownum <= 1000', self.engine).to_html()
+                        else:
+                            output = pd.read_sql(l, self.engine).to_html()
                     else:
                         if self.engine:
-                            if l.startswith('select ') and ' limit ' not in l:
-                                output = pd.read_sql(l+' limit 1000', self.engine).to_html()
-                            else:
-                                output = pd.read_sql(l, self.engine).to_html()
+                            pd.io.sql.execute(l, con=self.engine)
                         else:
-                            output = 'Unable to connect to Mysql server. Check that the server is running.'
+                            output = 'Unable to connect to Oracle server. Check that the server is running.'
             self.output(output)
             return self.ok()
         except Exception as msg:
