@@ -58,7 +58,7 @@ ALL DONE! 🎉🎉🎉
 ```
 jupyter notebook
 ```
-<img src="image/oracle1.png" width = "700" height = "300" />
+<img src="image/oracle1.png"  />
 
 ### step1: you should set oracle host and port
 
